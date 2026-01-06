@@ -1,11 +1,11 @@
 openapi: 3.1.0
 info:
-  title: Find@ Public API
+  title: Find@ API
+  description: Official API for Find@ — smart links, bio pages, QR codes, domains, and analytics.
   version: "1.0.0"
-  description: >
-    Public API for the Find@ platform. This specification covers non-admin endpoints and
-    API key based access only. OAuth, plans, and admin user management endpoints are intentionally
-    excluded.
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
 
 servers:
   - url: https://find.at

@@ -21,11 +21,12 @@ Find@ provides programmatic access to:
 
 ## Links
 - Developer Portal: https://find.at/developers
-- Docs: https://find.at/developers
 - Platform: https://find.at
+- Free QR Generator: https://find.at/qr-codes
 
 ## Auth
 API Key via header:
 Authorization: Bearer YOUR_API_KEY
 
+## License
 Licensed under the Apache License, Version 2.0.

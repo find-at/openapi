@@ -3,7 +3,7 @@
   "info": {
     "title": "Find@ Public API",
     "version": "1.0.0",
-    "description": "Public API for the Find@ platform. This specification covers non-admin endpoints and API key based access only. OAuth, plans, and admin user management endpoints are intentionally excluded.\n"
+    "description": "Official API for Find@ — smart links, bio pages, QR codes, domains, and analytics.\n"
   },
   "servers": [
     {
