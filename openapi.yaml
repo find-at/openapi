@@ -1,0 +1,1856 @@
+openapi: 3.1.0
+info:
+  title: Find@ Public API
+  version: "1.0.0"
+  description: >
+    Public API for the Find@ platform. This specification covers non-admin endpoints and
+    API key based access only. OAuth, plans, and admin user management endpoints are intentionally
+    excluded.
+
+servers:
+  - url: https://find.at
+    description: Production server
+
+security:
+  - ApiKeyAuth: []
+
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: api-key
+
+  schemas:
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          description: Error flag (0 or 1). In some responses it is returned as string.
+          oneOf:
+            - type: integer
+            - type: string
+        message:
+          type: string
+      required:
+        - error
+      additionalProperties: true
+
+    Account:
+      type: object
+      properties:
+        id:
+          type: integer
+        email:
+          type: string
+          format: email
+        username:
+          type: string
+        avatar:
+          type: string
+          format: uri
+        status:
+          type: string
+          description: Account plan status, e.g. free, pro
+        expires:
+          type: string
+          format: date-time
+          nullable: true
+        registered:
+          type: string
+          format: date-time
+      required:
+        - id
+        - email
+        - username
+        - status
+        - registered
+
+    AccountGetResponse:
+      type: object
+      properties:
+        error:
+          oneOf:
+            - type: integer
+            - type: string
+        data:
+          $ref: '#/components/schemas/Account'
+      required:
+        - error
+        - data
+
+    AccountUpdateRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+      additionalProperties: false
+
+    AccountUpdateResponse:
+      type: object
+      properties:
+        error:
+          oneOf:
+            - type: integer
+            - type: string
+        message:
+          type: string
+      required:
+        - error
+        - message
+
+    PaginatedMeta:
+      type: object
+      properties:
+        result:
+          type: integer
+        perpage:
+          type: integer
+        currentpage:
+          type: integer
+        nextpage:
+          oneOf:
+            - type: integer
+            - type: "null"
+        maxpage:
+          type: integer
+      required:
+        - result
+        - perpage
+        - currentpage
+        - maxpage
+
+    Domain:
+      type: object
+      properties:
+        id:
+          type: integer
+        domain:
+          type: string
+        redirectroot:
+          type: string
+        redirect404:
+          type: string
+      required:
+        - id
+        - domain
+
+    DomainsListResponse:
+      type: object
+      properties:
+        error:
+          oneOf:
+            - type: string
+            - type: integer
+        data:
+          type: object
+          properties:
+            result:
+              type: integer
+            perpage:
+              type: integer
+            currentpage:
+              type: integer
+            nextpage:
+              oneOf:
+                - type: integer
+                - type: "null"
+            maxpage:
+              type: integer
+            domains:
+              type: array
+              items:
+                $ref: '#/components/schemas/Domain'
+          required:
+            - result
+            - perpage
+            - currentpage
+            - maxpage
+            - domains
+      required:
+        - error
+        - data
+
+    DomainCreateRequest:
+      type: object
+      properties:
+        domain:
+          type: string
+          description: Branded domain including http or https.
+        redirectroot:
+          type: string
+          description: Optional root redirect.
+        redirect404:
+          type: string
+          description: Optional custom 404 redirect.
+      required:
+        - domain
+      additionalProperties: false
+
+    DomainCreateResponse:
+      type: object
+      properties:
+        error:
+          oneOf:
+            - type: integer
+            - type: string
+        id:
+          type: integer
+      required:
+        - error
+        - id
+
+    DomainUpdateRequest:
+      type: object
+      properties:
+        redirectroot:
+          type: string
+        redirect404:
+          type: string
+      additionalProperties: false
+
+    SimpleMessageResponse:
+      type: object
+      properties:
+        error:
+          oneOf:
+            - type: integer
+            - type: string
+        message:
+          type: string
+      required:
+        - error
+        - message
+
+    CTAOverlay:
+      type: object
+      properties:
+        id:
+          type: integer
+        type:
+          type: string
+        name:
+          type: string
+        date:
+          type: string
+          format: date-time
+
+    CTAOverlayListResponse:
+      type: object
+      properties:
+        error:
+          oneOf:
+            - type: integer
+            - type: string
+        data:
+          type: object
+          properties:
+            result:
+              type: integer
+            perpage:
+              type: integer
+            currentpage:
+              type: integer
+            nextpage:
+              oneOf:
+                - type: integer
+                - type: "null"
+            maxpage:
+              type: integer
+            cta:
+              type: array
+              items:
+                $ref: '#/components/schemas/CTAOverlay'
+          required:
+            - result
+            - perpage
+            - currentpage
+            - maxpage
+            - cta
+      required:
+        - error
+        - data
+
+    Campaign:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        public:
+          type: boolean
+        rotator:
+          oneOf:
+            - type: string
+            - type: "null"
+        list:
+          type: string
+      required:
+        - id
+        - name
+        - public
+
+    CampaignsListResponse:
+      type: object
+      properties:
+        error:
+          oneOf:
+            - type: integer
+            - type: string
+        data:
+          type: object
+          properties:
+            result:
+              type: integer
+            perpage:
+              type: integer
+            currentpage:
+              type: integer
+            nextpage:
+              oneOf:
+                - type: integer
+                - type: "null"
+            maxpage:
+              type: integer
+            campaigns:
+              type: array
+              items:
+                $ref: '#/components/schemas/Campaign'
+          required:
+            - result
+            - perpage
+            - currentpage
+            - maxpage
+            - campaigns
+      required:
+        - error
+        - data
+
+    CampaignCreateRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        slug:
+          type: string
+        public:
+          type: boolean
+      additionalProperties: false
+
+    CampaignCreateResponse:
+      type: object
+      properties:
+        error:
+          oneOf:
+            - type: integer
+            - type: string
+        id:
+          type: integer
+        domain:
+          type: string
+        public:
+          type: boolean
+        rotator:
+          type: string
+        list:
+          type: string
+      required:
+        - error
+        - id
+
+    Channel:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        description:
+          type: string
+        color:
+          type: string
+        starred:
+          type: boolean
+
+    ChannelsListResponse:
+      type: object
+      properties:
+        error:
+          oneOf:
+            - type: integer
+            - type: string
+        data:
+          type: object
+          properties:
+            result:
+              type: integer
+            perpage:
+              type: integer
+            currentpage:
+              type: integer
+            nextpage:
+              oneOf:
+                - type: integer
+                - type: "null"
+            maxpage:
+              type: integer
+            channels:
+              type: array
+              items:
+                $ref: '#/components/schemas/Channel'
+          required:
+            - result
+            - perpage
+            - currentpage
+            - maxpage
+            - channels
+      required:
+        - error
+        - data
+
+    ChannelItem:
+      type: object
+      properties:
+        type:
+          type: string
+          enum: [links, bio, qr]
+        id:
+          type: integer
+        title:
+          type: string
+        preview:
+          type: string
+        link:
+          type: string
+        date:
+          type: string
+          format: date
+
+    ChannelItemsListResponse:
+      type: object
+      properties:
+        error:
+          oneOf:
+            - type: integer
+            - type: string
+        data:
+          type: object
+          properties:
+            result:
+              type: integer
+            perpage:
+              type: integer
+            currentpage:
+              type: integer
+            nextpage:
+              oneOf:
+                - type: integer
+                - type: "null"
+            maxpage:
+              type: integer
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/ChannelItem'
+          required:
+            - result
+            - perpage
+            - currentpage
+            - maxpage
+            - items
+      required:
+        - error
+        - data
+
+    ChannelCreateRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        color:
+          type: string
+          description: HEX color
+        starred:
+          type: boolean
+      required:
+        - name
+
+    ChannelAssignRequestParams:
+      type: object
+      properties:
+        channelid:
+          type: integer
+        type:
+          type: string
+          enum: [links, bio, qr]
+        itemid:
+          type: integer
+
+    Splash:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        date:
+          type: string
+          format: date-time
+
+    SplashListResponse:
+      type: object
+      properties:
+        error:
+          oneOf:
+            - type: integer
+            - type: string
+        data:
+          type: object
+          properties:
+            result:
+              type: integer
+            perpage:
+              type: integer
+            currentpage:
+              type: integer
+            nextpage:
+              oneOf:
+                - type: integer
+                - type: "null"
+            maxpage:
+              type: integer
+            splash:
+              type: array
+              items:
+                $ref: '#/components/schemas/Splash'
+          required:
+            - result
+            - perpage
+            - currentpage
+            - maxpage
+            - splash
+      required:
+        - error
+        - data
+
+    LinkSummary:
+      type: object
+      properties:
+        id:
+          type: integer
+        alias:
+          type: string
+        shorturl:
+          type: string
+        longurl:
+          type: string
+        clicks:
+          type: integer
+        title:
+          type: string
+        description:
+          type: string
+        date:
+          type: string
+          format: date-time
+
+    LinksListResponse:
+      type: object
+      properties:
+        error:
+          oneOf:
+            - type: integer
+            - type: string
+        data:
+          type: object
+          properties:
+            result:
+              type: integer
+            perpage:
+              type: integer
+            currentpage:
+              type: integer
+            nextpage:
+              oneOf:
+                - type: integer
+                - type: "null"
+            maxpage:
+              type: integer
+            urls:
+              type: array
+              items:
+                $ref: '#/components/schemas/LinkSummary'
+          required:
+            - result
+            - perpage
+            - currentpage
+            - maxpage
+            - urls
+      required:
+        - error
+        - data
+
+    LinkLocationTarget:
+      type: object
+      properties:
+        location:
+          type: string
+        link:
+          type: string
+
+    LinkDeviceTarget:
+      type: object
+      properties:
+        device:
+          type: string
+        link:
+          type: string
+
+    LinkLanguageTarget:
+      type: object
+      properties:
+        language:
+          type: string
+        link:
+          type: string
+
+    LinkParameter:
+      type: object
+      properties:
+        name:
+          type: string
+        value:
+          type: string
+
+    LinkDeeplink:
+      type: object
+      properties:
+        auto:
+          type: boolean
+        apple:
+          type: string
+        google:
+          type: string
+
+    LinkDetails:
+      type: object
+      properties:
+        id:
+          type: integer
+        shorturl:
+          type: string
+        longurl:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        location:
+          type: object
+          additionalProperties:
+            type: string
+        device:
+          type: object
+          additionalProperties:
+            type: string
+        expiry:
+          nullable: true
+        date:
+          type: string
+          format: date-time
+
+    LinkAnalytics:
+      type: object
+      properties:
+        clicks:
+          type: integer
+        uniqueClicks:
+          type: integer
+        topCountries:
+          oneOf:
+            - type: integer
+            - type: object
+        topReferrers:
+          oneOf:
+            - type: integer
+            - type: object
+        topBrowsers:
+          oneOf:
+            - type: integer
+            - type: object
+        topOs:
+          oneOf:
+            - type: integer
+            - type: object
+        socialCount:
+          type: object
+          properties:
+            facebook:
+              type: integer
+            twitter:
+              type: integer
+            google:
+              type: integer
+            instagram:
+              type: integer
+          additionalProperties: true
+
+    LinkGetResponse:
+      type: object
+      properties:
+        error:
+          oneOf:
+            - type: integer
+            - type: string
+        id:
+          type: integer
+        details:
+          $ref: '#/components/schemas/LinkDetails'
+        data:
+          $ref: '#/components/schemas/LinkAnalytics'
+      required:
+        - error
+        - id
+        - details
+        - data
+
+    LinkCreateRequest:
+      type: object
+      properties:
+        url:
+          type: string
+        custom:
+          type: string
+        type:
+          type: string
+          description: Redirection type [direct, frame, splash] or id/overlay-id for advanced modes.
+        password:
+          type: string
+        domain:
+          type: string
+        expiry:
+          type: string
+        geotarget:
+          type: array
+          items:
+            $ref: '#/components/schemas/LinkLocationTarget'
+        devicetarget:
+          type: array
+          items:
+            $ref: '#/components/schemas/LinkDeviceTarget'
+        languagetarget:
+          type: array
+          items:
+            $ref: '#/components/schemas/LinkLanguageTarget'
+        metatitle:
+          type: string
+        metadescription:
+          type: string
+        metaimage:
+          type: string
+        description:
+          type: string
+        pixels:
+          type: array
+          items:
+            type: integer
+        channel:
+          type: integer
+        campaign:
+          type: integer
+        deeplink:
+          $ref: '#/components/schemas/LinkDeeplink'
+        status:
+          type: string
+        parameters:
+          type: array
+          items:
+            $ref: '#/components/schemas/LinkParameter'
+      required:
+        - url
+
+    LinkCreateResponse:
+      type: object
+      properties:
+        error:
+          oneOf:
+            - type: integer
+            - type: string
+        id:
+          type: integer
+        shorturl:
+          type: string
+      required:
+        - error
+        - id
+        - shorturl
+
+    LinkUpdateRequest:
+      allOf:
+        - $ref: '#/components/schemas/LinkCreateRequest'
+
+    Pixel:
+      type: object
+      properties:
+        id:
+          type: integer
+        type:
+          type: string
+        name:
+          type: string
+        tag:
+          type: string
+        date:
+          type: string
+          format: date-time
+
+    PixelsListResponse:
+      type: object
+      properties:
+        error:
+          oneOf:
+            - type: integer
+            - type: string
+        data:
+          type: object
+          properties:
+            result:
+              type: integer
+            perpage:
+              type: integer
+            currentpage:
+              type: integer
+            nextpage:
+              oneOf:
+                - type: integer
+                - type: "null"
+            maxpage:
+              type: integer
+            pixels:
+              type: array
+              items:
+                $ref: '#/components/schemas/Pixel'
+          required:
+            - result
+            - perpage
+            - currentpage
+            - maxpage
+            - pixels
+      required:
+        - error
+        - data
+
+    PixelCreateRequest:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - gtmpixel
+            - gapixel
+            - fbpixel
+            - adwordspixel
+            - linkedinpixel
+            - twitterpixel
+            - adrollpixel
+            - quorapixel
+            - pinterest
+            - bing
+            - snapchat
+            - reddit
+            - tiktok
+        name:
+          type: string
+        tag:
+          type: string
+      required:
+        - type
+        - name
+        - tag
+
+    PixelUpdateRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        tag:
+          type: string
+      required:
+        - tag
+
+    QRCodeSummary:
+      type: object
+      properties:
+        id:
+          type: integer
+        link:
+          type: string
+        scans:
+          type: integer
+        name:
+          type: string
+        date:
+          type: string
+          format: date-time
+
+    QRListResponse:
+      type: object
+      properties:
+        error:
+          oneOf:
+            - type: integer
+            - type: string
+        data:
+          type: object
+          properties:
+            result:
+              type: integer
+            perpage:
+              type: integer
+            currentpage:
+              type: integer
+            nextpage:
+              oneOf:
+                - type: integer
+                - type: "null"
+            maxpage:
+              type: integer
+            qrs:
+              type: array
+              items:
+                $ref: '#/components/schemas/QRCodeSummary'
+          required:
+            - result
+            - perpage
+            - currentpage
+            - maxpage
+            - qrs
+      required:
+        - error
+        - data
+
+    QRDetails:
+      type: object
+      properties:
+        id:
+          type: integer
+        link:
+          type: string
+        scans:
+          type: integer
+        name:
+          type: string
+        date:
+          type: string
+          format: date-time
+
+    QRAnalytics:
+      type: object
+      properties:
+        clicks:
+          type: integer
+        uniqueClicks:
+          type: integer
+        topCountries:
+          type: object
+          additionalProperties:
+            type: string
+        topReferrers:
+          type: object
+          additionalProperties:
+            type: string
+        topBrowsers:
+          type: object
+          additionalProperties:
+            type: string
+        topOs:
+          type: object
+          additionalProperties:
+            type: string
+        socialCount:
+          type: object
+          properties:
+            facebook:
+              type: integer
+            twitter:
+              type: integer
+            instagram:
+              type: integer
+          additionalProperties: true
+
+    QRGetResponse:
+      type: object
+      properties:
+        error:
+          oneOf:
+            - type: integer
+            - type: string
+        details:
+          $ref: '#/components/schemas/QRDetails'
+        data:
+          $ref: '#/components/schemas/QRAnalytics'
+      required:
+        - error
+        - details
+        - data
+
+    QRCreateRequest:
+      type: object
+      properties:
+        type:
+          type: string
+          enum: [text, vcard, link, email, phone, sms, wifi]
+        data:
+          description: Data to be embedded. Type varies by QR type.
+        background:
+          type: string
+          description: RGB color e.g. rgb(255,255,255)
+        foreground:
+          type: string
+          description: RGB color e.g. rgb(0,0,0)
+        logo:
+          type: string
+          description: Path to logo (png or jpg)
+        name:
+          type: string
+      required:
+        - type
+        - data
+
+    QRCreateResponse:
+      type: object
+      properties:
+        error:
+          oneOf:
+            - type: integer
+            - type: string
+        id:
+          type: integer
+        link:
+          type: string
+      required:
+        - error
+        - id
+        - link
+
+    QRUpdateRequest:
+      type: object
+      properties:
+        type:
+          type: string
+        data:
+          description: Data to be embedded.
+        background:
+          type: string
+        foreground:
+          type: string
+        logo:
+          type: string
+      required:
+        - data
+
+paths:
+  /api/account:
+    get:
+      tags: [Account]
+      summary: Get account information
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '200':
+          description: Account information
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountGetResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/account/update:
+    put:
+      tags: [Account]
+      summary: Update account information
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AccountUpdateRequest'
+      responses:
+        '200':
+          description: Account updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountUpdateResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/domains:
+    get:
+      tags: [Branded Domains]
+      summary: List branded domains
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+          required: false
+          description: Per page data result
+        - name: page
+          in: query
+          schema:
+            type: integer
+          required: false
+          description: Current page request
+      responses:
+        '200':
+          description: List of branded domains
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DomainsListResponse'
+
+  /api/domain/add:
+    post:
+      tags: [Branded Domains]
+      summary: Create a branded domain
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DomainCreateRequest'
+      responses:
+        '200':
+          description: Domain created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DomainCreateResponse'
+
+  /api/domain/{id}/update:
+    put:
+      tags: [Branded Domains]
+      summary: Update a branded domain
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DomainUpdateRequest'
+      responses:
+        '200':
+          description: Domain updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SimpleMessageResponse'
+
+  /api/domain/{id}/delete:
+    delete:
+      tags: [Branded Domains]
+      summary: Delete a branded domain
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Domain deleted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SimpleMessageResponse'
+
+  /api/overlay:
+    get:
+      tags: [CTA Overlays]
+      summary: List CTA overlays
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+        - name: page
+          in: query
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: List of CTA overlays
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CTAOverlayListResponse'
+
+  /api/campaigns:
+    get:
+      tags: [Campaigns]
+      summary: List campaigns
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+        - name: page
+          in: query
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: List of campaigns
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CampaignsListResponse'
+
+  /api/campaign/add:
+    post:
+      tags: [Campaigns]
+      summary: Create a campaign
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CampaignCreateRequest'
+      responses:
+        '200':
+          description: Campaign created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CampaignCreateResponse'
+
+  /api/campaign/{campaignid}/assign/{linkid}:
+    post:
+      tags: [Campaigns]
+      summary: Assign a link to a campaign
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - name: campaignid
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: linkid
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Link successfully assigned
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SimpleMessageResponse'
+
+  /api/campaign/{id}/update:
+    put:
+      tags: [Campaigns]
+      summary: Update a campaign
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CampaignCreateRequest'
+      responses:
+        '200':
+          description: Campaign updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CampaignCreateResponse'
+
+  /api/campaign/{id}/delete:
+    delete:
+      tags: [Campaigns]
+      summary: Delete a campaign
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Campaign deleted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SimpleMessageResponse'
+
+  /api/channels:
+    get:
+      tags: [Channels]
+      summary: List channels
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+        - name: page
+          in: query
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: List of channels
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChannelsListResponse'
+
+  /api/channel/{id}:
+    get:
+      tags: [Channels]
+      summary: List items in a channel
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: limit
+          in: query
+          schema:
+            type: integer
+        - name: page
+          in: query
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: List of items in channel
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChannelItemsListResponse'
+
+  /api/channel/add:
+    post:
+      tags: [Channels]
+      summary: Create a channel
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChannelCreateRequest'
+      responses:
+        '200':
+          description: Channel created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    oneOf:
+                      - type: integer
+                      - type: string
+                  id:
+                    type: integer
+                  name:
+                    type: string
+                  description:
+                    type: string
+                  color:
+                    type: string
+                  starred:
+                    type: boolean
+                required:
+                  - error
+                  - id
+
+  /api/channel/{channelid}/assign/{type}/{itemid}:
+    post:
+      tags: [Channels]
+      summary: Assign an item to a channel
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - name: channelid
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: type
+          in: path
+          required: true
+          schema:
+            type: string
+            enum: [links, bio, qr]
+        - name: itemid
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Item successfully added to channel
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SimpleMessageResponse'
+
+  /api/channel/{id}/update:
+    put:
+      tags: [Channels]
+      summary: Update a channel
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChannelCreateRequest'
+      responses:
+        '200':
+          description: Channel updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SimpleMessageResponse'
+
+  /api/channel/{id}/delete:
+    delete:
+      tags: [Channels]
+      summary: Delete a channel
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Channel deleted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SimpleMessageResponse'
+
+  /api/splash:
+    get:
+      tags: [Custom Splash]
+      summary: List custom splash pages
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+        - name: page
+          in: query
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: List of splash pages
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SplashListResponse'
+
+  /api/urls:
+    get:
+      tags: [Links]
+      summary: List links
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+        - name: page
+          in: query
+          schema:
+            type: integer
+        - name: order
+          in: query
+          schema:
+            type: string
+            enum: [date, click]
+        - name: short
+          in: query
+          schema:
+            type: string
+          description: Search using short URL. If present, other filters are ignored.
+        - name: q
+          in: query
+          schema:
+            type: string
+          description: Search by keyword.
+      responses:
+        '200':
+          description: List of links or single link if `short` is used and matches
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/LinksListResponse'
+                  - $ref: '#/components/schemas/LinkGetResponse'
+
+  /api/url/{id}:
+    get:
+      tags: [Links]
+      summary: Get a single link
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Full link details and analytics
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LinkGetResponse'
+
+  /api/url/add:
+    post:
+      tags: [Links]
+      summary: Shorten a link
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LinkCreateRequest'
+      responses:
+        '200':
+          description: Link created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LinkCreateResponse'
+
+  /api/url/{id}/update:
+    put:
+      tags: [Links]
+      summary: Update a link
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LinkUpdateRequest'
+      responses:
+        '200':
+          description: Link updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LinkCreateResponse'
+
+  /api/url/{id}/delete:
+    delete:
+      tags: [Links]
+      summary: Delete a link
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Link deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SimpleMessageResponse'
+
+  /api/pixels:
+    get:
+      tags: [Pixels]
+      summary: List pixels
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+        - name: page
+          in: query
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: List of pixels
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PixelsListResponse'
+
+  /api/pixel/add:
+    post:
+      tags: [Pixels]
+      summary: Create a pixel
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PixelCreateRequest'
+      responses:
+        '200':
+          description: Pixel created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    oneOf:
+                      - type: integer
+                      - type: string
+                  id:
+                    type: integer
+                required:
+                  - error
+                  - id
+
+  /api/pixel/{id}/update:
+    put:
+      tags: [Pixels]
+      summary: Update a pixel
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PixelUpdateRequest'
+      responses:
+        '200':
+          description: Pixel updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SimpleMessageResponse'
+
+  /api/pixel/{id}/delete:
+    delete:
+      tags: [Pixels]
+      summary: Delete a pixel
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Pixel deleted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SimpleMessageResponse'
+
+  /api/qr:
+    get:
+      tags: [QR Codes]
+      summary: List QR codes
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+        - name: page
+          in: query
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: List of QR codes
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QRListResponse'
+
+  /api/qr/{id}:
+    get:
+      tags: [QR Codes]
+      summary: Get a single QR code
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: QR details and analytics
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QRGetResponse'
+
+  /api/qr/add:
+    post:
+      tags: [QR Codes]
+      summary: Create a QR code
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/QRCreateRequest'
+      responses:
+        '200':
+          description: QR code created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QRCreateResponse'
+
+  /api/qr/{id}/update:
+    put:
+      tags: [QR Codes]
+      summary: Update a QR code
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/QRUpdateRequest'
+      responses:
+        '200':
+          description: QR code updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SimpleMessageResponse'
+
+  /api/qr/{id}/delete:
+    delete:
+      tags: [QR Codes]
+      summary: Delete a QR code
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: QR code deleted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SimpleMessageResponse'
